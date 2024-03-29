@@ -45,9 +45,18 @@ const Popup = () => {
         count up
       </button>
       <button onClick={changeBackground}>change background</button>
+      <button onClick={insertPinnedMainPage}>insert pinned main page</button>
     </>
   );
 };
+
+const insertPinnedMainPage = () => {
+  chrome.tabs.create({
+    url: "main.html",
+    pinned: true,
+    index: 0,
+  });
+}
 
 const root = createRoot(document.getElementById("root")!);
 
