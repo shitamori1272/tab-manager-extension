@@ -2,13 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from "react-dom/client";
 
 const Main = () => {
-  const [tabUrls, setTabUrls] = useState<string[]>([]);
+  const [tabUrls, setTabUrls] = useState<{ url: URL, title: string }[]>([]);
 
   useEffect(() => {
     // Fetch the list of tabs and their URLs
     chrome.tabs.query({}, (tabs) => {
-      const urls = tabs.map((tab) => tab.url).filter(Boolean) as string[]; // Filter out undefined values
-      setTabUrls(urls);
+      const urls = tabs.map((tab) => {
+        const url = tab.url && new URL(tab.url);
+        const title = tab.title;
+        return { url, title };
+      }).filter((tab) => tab.url && tab.title); // Filter out undefined values
+      setTabUrls(urls as { url: URL, title: string }[]);
     });
   }, []);
 
@@ -27,10 +31,10 @@ const Main = () => {
     <div>
       <h1>Tab URLs</h1>
       <ul>
-        {tabUrls.map((url, index) => (
-          <div key={index} onClick={(e) => handleTabClick(e, url)} style={{ cursor: 'pointer' }}>
-            <a href={url} onMouseOver={(e) => (e.target as HTMLAnchorElement).style.textDecoration = 'underline'} onMouseOut={(e) => (e.target as HTMLAnchorElement).style.textDecoration = 'none'}>
-              {url}
+        {tabUrls.map((tab, index) => (
+          <div key={index} onClick={(e) => handleTabClick(e, tab.url.href)} style={{ cursor: 'pointer' }}>
+            <a href={tab.url.href} onMouseOver={(e) => (e.target as HTMLAnchorElement).style.textDecoration = 'underline'} onMouseOut={(e) => (e.target as HTMLAnchorElement).style.textDecoration = 'none'}>
+              {tab.title}
             </a>
           </div>
         ))}
